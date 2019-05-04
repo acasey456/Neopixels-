@@ -1,0 +1,548 @@
+//Neopixel Library
+#include <Adafruit_NeoPixel.h>
+
+#include <avr/power.h>
+
+#define NUMPIXELS 13
+
+#define PIN 7 //neopixel definition
+
+ 
+//Capacitive Touch Library
+#include <CapacitiveSensor.h>
+
+//Create all of the notes 
+#define NOTE_C4 262
+#define NOTE_CS4 277
+#define NOTE_D4 294
+#define NOTE_DS4 311
+#define NOTE_E4 330
+#define NOTE_F4 349
+#define NOTE_FS4 370
+#define NOTE_G4 392
+#define NOTE_GS4 415
+#define NOTE_A4 440
+#define NOTE_AS4 466
+#define NOTE_B4 494
+#define NOTE_C5 523
+
+//define pin numbers
+int pot = A0;
+int cString = 22;
+int cSString = 24;
+int dString = 26;
+int dSString = 28;
+int eString = 30;
+int fString = 32;
+int fSString = 34;
+int gString = 36;
+int gSString = 38;
+int aString = 40;
+int aSString = 42;
+int bString = 44;
+int octave = 46;
+int speakerPin = 12;
+//for serial
+int state = 0; //current state of c 
+int reading; //current state of c
+int previous = 0; //previous reading from c
+long time = 0;
+long debounce = 200;
+
+//Define capacative sensors
+CapacitiveSensor   cs_1 = CapacitiveSensor(4,cString);       
+CapacitiveSensor   cs_2 = CapacitiveSensor(4,cSString);       
+CapacitiveSensor   cs_3 = CapacitiveSensor(4,dString);       
+CapacitiveSensor   cs_4 = CapacitiveSensor(4,dSString);       
+CapacitiveSensor   cs_5 = CapacitiveSensor(4,eString);
+CapacitiveSensor   cs_6 = CapacitiveSensor(4,fString); 
+CapacitiveSensor   cs_7 = CapacitiveSensor(4,fSString); 
+CapacitiveSensor   cs_8 = CapacitiveSensor(4,gString); 
+CapacitiveSensor   cs_9 = CapacitiveSensor(4,gSString); 
+CapacitiveSensor   cs_10 = CapacitiveSensor(4,aString); 
+CapacitiveSensor   cs_11 = CapacitiveSensor(4,aSString); 
+CapacitiveSensor   cs_12 = CapacitiveSensor(4,bString); 
+CapacitiveSensor   cs_13 = CapacitiveSensor(4,octave);        
+
+//to track the state change of what note is being pressed
+int c = 0; 
+
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
+
+void setup() {
+  // turn off autocalibrate on channel 1 - just as an example
+  cs_1.set_CS_AutocaL_Millis(0xFFFFFFFF);     
+  //initialize Serial
+  Serial.begin(9600);
+  //neopixels
+  strip.begin();
+  strip.show(); //initialize all pixels to off
+}
+
+void loop() {
+  //set values for capacitive sensors
+  long start = millis();
+  long total1 =  cs_1.capacitiveSensor(30);
+  long total2 =  cs_2.capacitiveSensor(30);
+  long total3 =  cs_3.capacitiveSensor(30);
+  long total4 =  cs_4.capacitiveSensor(30);
+  long total5 =  cs_5.capacitiveSensor(30);
+  long total6 =  cs_6.capacitiveSensor(30);
+  long total7 =  cs_7.capacitiveSensor(30);
+  long total8 =  cs_8.capacitiveSensor(30);
+  long total9 =  cs_9.capacitiveSensor(30);
+  long total10 =  cs_10.capacitiveSensor(30);
+  long total11 =  cs_11.capacitiveSensor(30);
+  long total12 =  cs_12.capacitiveSensor(30);
+  long total13 =  cs_13.capacitiveSensor(30);
+     
+//Sensor Testing
+////      Serial.print(total1);                  // print sensor output 1
+
+////      Serial.print("\t");
+
+////     
+
+////      Serial.print(total2);                  // print sensor output 2
+
+////      Serial.print("\t");
+
+////     
+
+////      Serial.println(total3);                // print sensor output 3
+
+////      Serial.print("\t");
+
+////     
+
+////      Serial.println(total4);                // print sensor output 3
+
+////      Serial.print("\t");
+
+////     
+
+////      Serial.println(total5);
+
+////      Serial.print("\t");// print sensor output 3
+
+////
+
+////      Serial.print("\n");
+
+////      delay(3);     
+
+  //collect potentiometer value
+  int potRead = analogRead(pot);
+  int choice = map(potRead, 0, 1023, 0, 3);
+  //Serial.println(choice);
+  
+  //use potentiometer values to trigger sclae light patterns
+  //C chord
+  if(choice == 0)
+  {
+
+    strip.setPixelColor(0, 0, 0, 0);
+    strip.setPixelColor(1, 0, 0, 0);
+    strip.setPixelColor(2, 0, 0, 0);
+    strip.setPixelColor(3, 0, 0, 0);
+    strip.setPixelColor(4, 0, 0, 0);
+    strip.setPixelColor(5, 0, 0, 0);
+    strip.setPixelColor(6, 255, 0, 0); 
+    strip.setPixelColor(7, 0, 0, 0);
+    strip.setPixelColor(8, 255, 0, 0); 
+    strip.setPixelColor(9, 0, 0, 0);
+    strip.setPixelColor(10, 0, 0, 0);
+    strip.setPixelColor(11, 0, 0, 0);
+    strip.setPixelColor(12, 255, 0, 0); 
+    strip.show();
+
+  }
+
+  //D chord
+  else if(choice == 1)
+  {
+
+    strip.setPixelColor(0, 0, 0, 0);
+    strip.setPixelColor(1, 0, 0, 0);
+    strip.setPixelColor(2, 0, 0, 0);
+    strip.setPixelColor(3, 255, 0, 0);
+    strip.setPixelColor(4, 0, 0, 0);
+    strip.setPixelColor(5, 0, 0, 0);
+    strip.setPixelColor(6, 255, 0, 0);
+    strip.setPixelColor(7, 0, 0, 0);
+    strip.setPixelColor(8, 0, 0, 0);
+    strip.setPixelColor(9, 0, 0, 0);
+    strip.setPixelColor(10, 255, 0, 0); 
+    strip.setPixelColor(11, 0, 0, 0);
+    strip.setPixelColor(12, 0, 0, 0);
+    strip.show();
+
+ }
+  
+  //Em chord
+  else if(choice == 2)
+  {
+
+    strip.begin();
+    strip.setPixelColor(0, 0, 0, 0);
+    strip.setPixelColor(1, 0, 0, 0);
+    strip.setPixelColor(2, 0, 0, 0);
+    strip.setPixelColor(3, 0, 0, 0);
+    strip.setPixelColor(4, 255, 0, 0);
+    strip.setPixelColor(5, 0, 0, 0);
+    strip.setPixelColor(6, 0, 0, 0);
+    strip.setPixelColor(7, 255, 0, 0);
+    strip.setPixelColor(8, 0, 0, 0);
+    strip.setPixelColor(9, 0, 0, 0);
+    strip.setPixelColor(10, 0, 0, 0);
+    strip.setPixelColor(11, 255, 0, 0);
+    strip.setPixelColor(12, 0, 0, 0);
+    strip.show();
+
+  }
+
+  //C SCALE
+  else if(choice == 3)
+  {
+    //Serial.println(c);
+    //iteration through scale 
+    if(c == 0)
+    {
+      strip.setPixelColor(0, 0, 0, 0);
+      strip.setPixelColor(1, 0, 0, 0);
+      strip.setPixelColor(2, 0, 0, 0);
+      strip.setPixelColor(3, 0, 0, 0);
+      strip.setPixelColor(4, 0, 0, 0);
+      strip.setPixelColor(5, 0, 0, 0);
+      strip.setPixelColor(6, 0, 0, 0);
+      strip.setPixelColor(7, 0, 0, 0);
+      strip.setPixelColor(8, 0, 0, 0);
+      strip.setPixelColor(9, 0, 0, 0);
+      strip.setPixelColor(10, 0, 0, 0);
+      strip.setPixelColor(11, 0, 0, 0);
+      strip.setPixelColor(12, 255, 0, 0);
+      strip.show();
+    }
+    
+    else if(c == 1)
+    {
+      strip.setPixelColor(0, 0, 0, 0); 
+      strip.setPixelColor(1, 0, 0, 0);
+      strip.setPixelColor(2, 0, 0, 0);
+      strip.setPixelColor(3, 0, 0, 0);
+      strip.setPixelColor(4, 0, 0, 0);
+      strip.setPixelColor(5, 0, 0, 0); 
+      strip.setPixelColor(6, 0, 0, 0);
+      strip.setPixelColor(7, 0, 0, 0);
+      strip.setPixelColor(8, 0, 0, 0);
+      strip.setPixelColor(9, 0, 0, 0);
+      strip.setPixelColor(10, 255, 0, 0); 
+      strip.setPixelColor(11, 0, 0, 0);
+      strip.setPixelColor(12, 0, 255, 0);
+      strip.show();
+    }
+    else if(c == 3)
+    {
+      strip.setPixelColor(0, 0, 0, 0); 
+      strip.setPixelColor(1, 0, 0, 0);
+      strip.setPixelColor(2, 0, 0, 0);
+      strip.setPixelColor(3, 0, 0, 0);
+      strip.setPixelColor(4, 0, 0, 0);
+      strip.setPixelColor(5, 0, 0, 0); 
+      strip.setPixelColor(6, 0, 0, 0);
+      strip.setPixelColor(7, 0, 0, 0);
+      strip.setPixelColor(8, 255, 0, 0);
+      strip.setPixelColor(9, 0, 0, 0);
+      strip.setPixelColor(10, 0, 255, 0); 
+      strip.setPixelColor(11, 0, 0, 0);
+      strip.setPixelColor(12, 0, 255, 0);
+      strip.show();
+    }
+    else if(c == 5)
+    {
+      strip.setPixelColor(0, 0, 0, 0); 
+      strip.setPixelColor(1, 0, 0, 0);
+      strip.setPixelColor(2, 0, 0, 0);
+      strip.setPixelColor(3, 0, 0, 0);
+      strip.setPixelColor(4, 0, 0, 0);
+      strip.setPixelColor(5, 0, 0, 0); 
+      strip.setPixelColor(6, 0, 0, 0);
+      strip.setPixelColor(7, 255, 0, 0);
+      strip.setPixelColor(8, 0, 255, 0);
+      strip.setPixelColor(9, 0, 0, 0);
+      strip.setPixelColor(10, 0, 255, 0); 
+      strip.setPixelColor(11, 0, 0, 0);
+      strip.setPixelColor(12, 0, 255, 0);
+      strip.show();
+    }
+    else if(c == 6)
+    {
+      strip.setPixelColor(0, 0, 0, 0); 
+      strip.setPixelColor(1, 0, 0, 0);
+      strip.setPixelColor(2, 0, 0, 0);
+      strip.setPixelColor(3, 0, 0, 0);
+      strip.setPixelColor(4, 0, 0, 0);
+      strip.setPixelColor(5, 255, 0, 0); 
+      strip.setPixelColor(6, 0, 0, 0);
+      strip.setPixelColor(7, 0, 255, 0);
+      strip.setPixelColor(8, 0, 255, 0);
+      strip.setPixelColor(9, 0, 0, 0);
+      strip.setPixelColor(10, 0, 255, 0); 
+      strip.setPixelColor(11, 0, 0, 0);
+      strip.setPixelColor(12, 0, 255, 0);
+      strip.show();
+    }
+    else if(c == 8)
+    {
+      strip.setPixelColor(0, 0, 0, 0); 
+      strip.setPixelColor(1, 0, 0, 0);
+      strip.setPixelColor(2, 0, 0, 0);
+      strip.setPixelColor(3, 255, 0, 0);
+      strip.setPixelColor(4, 0, 0, 0);
+      strip.setPixelColor(5, 0, 255, 0); 
+      strip.setPixelColor(6, 0, 0, 0);
+      strip.setPixelColor(7, 0, 255, 0);
+      strip.setPixelColor(8, 0, 255, 0);
+      strip.setPixelColor(9, 0, 0, 0);
+      strip.setPixelColor(10, 0, 255, 0); 
+      strip.setPixelColor(11, 0, 0, 0);
+      strip.setPixelColor(12, 0, 255, 0);
+      strip.show();
+    }
+    else if(c == 10)
+    {
+      strip.setPixelColor(0, 0, 0, 0); 
+      strip.setPixelColor(1, 255, 0, 0);
+      strip.setPixelColor(2, 0, 0, 0);
+      strip.setPixelColor(3, 0, 255, 0);
+      strip.setPixelColor(4, 0, 0, 0);
+      strip.setPixelColor(5, 0, 255, 0); 
+      strip.setPixelColor(6, 0, 0, 0);
+      strip.setPixelColor(7, 0, 255, 0);
+      strip.setPixelColor(8, 0, 255, 0);
+      strip.setPixelColor(9, 0, 0, 0);
+      strip.setPixelColor(10, 0, 255, 0); 
+      strip.setPixelColor(11, 0, 0, 0);
+      strip.setPixelColor(12, 0, 255, 0);
+      strip.show();
+    }
+    else if(c == 12)
+    {
+      strip.setPixelColor(0, 255, 0, 0); 
+      strip.setPixelColor(1, 0, 255, 0);
+      strip.setPixelColor(2, 0, 0, 0);
+      strip.setPixelColor(3, 0, 255, 0);
+      strip.setPixelColor(4, 0, 0, 0);
+      strip.setPixelColor(5, 0, 255, 0); 
+      strip.setPixelColor(6, 0, 0, 0);
+      strip.setPixelColor(7, 0, 255, 0);
+      strip.setPixelColor(8, 0, 255, 0);
+      strip.setPixelColor(9, 0, 0, 0);
+      strip.setPixelColor(10, 0, 255, 0); 
+      strip.setPixelColor(11, 0, 0, 0);
+      strip.setPixelColor(12, 0, 255, 0);
+      strip.show();
+    }
+    else if(c == 13)
+    {
+      strip.setPixelColor(0, 0, 255, 0); 
+      strip.setPixelColor(1, 0, 255, 0);
+      strip.setPixelColor(2, 0, 0, 0);
+      strip.setPixelColor(3, 0, 255, 0);
+      strip.setPixelColor(4, 0, 0, 0);
+      strip.setPixelColor(5, 0, 255, 0); 
+      strip.setPixelColor(6, 0, 0, 0);
+      strip.setPixelColor(7, 0, 255, 0);
+      strip.setPixelColor(8, 0, 255, 0);
+      strip.setPixelColor(9, 0, 0, 0);
+      strip.setPixelColor(10, 0, 255, 0); 
+      strip.setPixelColor(11, 0, 0, 0);
+      strip.setPixelColor(12, 0, 255, 0);
+      strip.show();
+    }
+    else
+    {
+      strip.setPixelColor(0, 0, 0, 0);
+      strip.setPixelColor(1, 0, 0, 0);
+      strip.setPixelColor(2, 0, 0, 0);
+      strip.setPixelColor(3, 0, 0, 0);
+      strip.setPixelColor(4, 0, 0, 0);
+      strip.setPixelColor(5, 0, 0, 0);
+      strip.setPixelColor(6, 0, 0, 0);
+      strip.setPixelColor(7, 0, 0, 0);
+      strip.setPixelColor(8, 0, 0, 0);
+      strip.setPixelColor(9, 0, 0, 0);
+      strip.setPixelColor(10, 0, 0, 0);
+      strip.setPixelColor(11, 0, 0, 0);
+      strip.setPixelColor(12, 255, 0, 0);
+      strip.show();
+      c = 0;
+    }
+        
+  }
+ 
+    //play notes
+
+    /*
+
+      NOTE_C4 262
+
+      NOTE_CS4 277
+
+      NOTE_D4 294
+
+      NOTE_DS4 311
+
+      NOTE_E4 330
+
+     */
+
+    if(total1 > 100)
+
+    {
+
+      //tone(speakerPin, NOTE_C4);
+      c = 1;
+      //Serial.println(c);
+
+    }
+
+    else if(total2 > 100)
+
+    {
+
+      //tone(speakerPin, NOTE_CS4);
+      c = 2;
+     // Serial.println(c);
+
+    }
+
+    else if(total3 > 100)
+
+    {
+
+      //tone(speakerPin, NOTE_D4);
+      c = 3;
+      //Serial.println(total3);
+      //Serial.println(c);
+
+    }
+
+    else if(total4 > 100)
+
+    {
+
+      //tone(speakerPin, NOTE_DS4);
+      c = 4;
+      //Serial.println(c);
+
+    }
+
+    else if(total5 > 100)
+
+    {
+
+      //tone(speakerPin, NOTE_E4);
+      c = 5;
+      //Serial.println(c);
+    }
+
+    else if(total6 > 100)
+
+    {
+
+      //tone(speakerPin, NOTE_F4);
+      c = 6;
+      //Serial.print(c);
+    }
+
+    else if(total7 > 100)
+
+    {
+
+      //tone(speakerPin, NOTE_FS4);
+      c = 7;
+      //Serial.println(c);
+
+    }
+
+    else if(total8 > 100)
+
+    {
+
+      //tone(speakerPin, NOTE_G4);
+      c = 8;
+      //Serial.println(c);
+
+    }
+
+    else if(total9 > 100)
+
+    {
+
+      //tone(speakerPin, NOTE_GS4);
+      c = 9;
+      //Serial.println(c);
+
+    }
+
+    else if(total10 > 100)
+
+    {
+
+      //tone(speakerPin, NOTE_A4);
+      c = 10;
+      //Serial.println(c);
+    }
+
+    else if(total11 > 100)
+
+    {
+
+      //tone(speakerPin, NOTE_AS4);
+      c = 11;
+      //Serial.println(c);
+
+    }
+
+    else if(total12 > 100)
+
+    {
+
+      //tone(speakerPin, NOTE_B4);
+      c = 12;
+      //Serial.println(c);
+
+    }
+
+    else if(total13 > 100)
+
+    {
+
+      //tone(speakerPin, NOTE_C5);
+      c = 13;
+      //Serial.print(c);
+
+    }
+
+    else
+
+    {
+
+      noTone(speakerPin);
+
+    }
+
+  //send to serial 
+  reading = c;
+  if (reading != previous && millis() - time > debounce) 
+  {
+    state = c;
+    Serial.println(state);
+    time = millis();    
+  }
+  //Serial.println(state);
+  previous = reading;
+  
+
+}
