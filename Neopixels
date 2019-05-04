@@ -1,0 +1,139 @@
+#include <Adafruit_NeoPixel.h>
+#include <avr/power.h>
+#define NUMPIXELS 5
+#define PIN 5
+
+int pot = A0;
+int button = 4; //button pin 
+int state = HIGH; // the current state of the output pin
+int reading; // the current reading from the input pin
+int previous = LOW; // the previous reading from the input pin
+int c = 0; //to count the state changes 
+
+//time to account for error or fluctuation on the button pin 
+long time = 0;
+long debounce = 200;
+
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
+void setup() {
+  Serial.begin(9600); 
+
+  //button
+  pinMode(button, INPUT);
+
+  //neopixels
+  strip.begin();
+  strip.show(); //initialize all pixels to off 
+  
+
+}
+
+
+void loop() {
+  //collect potentiometer value 
+  int choice = analogRead(pot);
+  //Serial.println(choice);
+  
+  //use potentiometer values to trigger sclae light patterns
+  //C chord
+  if(choice <= 255)
+  {
+    strip.setPixelColor(0, 255, 0, 0); 
+    strip.setPixelColor(1, 0, 0, 0);
+    strip.setPixelColor(2, 0, 0, 0);
+    strip.setPixelColor(3, 0, 0, 0);
+    strip.setPixelColor(4, 255, 0, 0);
+    //strip.setPixelColor(5, 0, 0, 0); 
+    //strip.setPixelColor(6, 255, 0, 0);
+    //strip.setPixelColor(7, 0, 0, 0);
+    //strip.setPixelColor(8, 0, 0, 0);
+    //strip.setPixelColor(9, 0, 0, 0);
+    //strip.setPixelColor(10, 0, 0, 0); 
+    //strip.setPixelColor(11, 0, 0, 0);
+    strip.show();
+  }
+  //D chord
+  else if(255 < choice <= 510)
+  {
+    strip.setPixelColor(0, 0, 0, 0); 
+    strip.setPixelColor(1, 0, 0, 0);
+    strip.setPixelColor(2, 255, 0, 0);
+    strip.setPixelColor(3, 0, 0, 0);
+    strip.setPixelColor(4, 0, 0, 0);
+    //strip.setPixelColor(5, 0, 0, 0); 
+    //strip.setPixelColor(6, 255, 0, 0);
+    //strip.setPixelColor(7, 0, 0, 0);
+    //strip.setPixelColor(8, 0, 0, 0);
+    //strip.setPixelColor(9, 255, 0, 0);
+    //strip.setPixelColor(10, 0, 0, 0); 
+    //strip.setPixelColor(11, 0, 0, 0);
+    strip.show();
+  }
+  //Em chord
+  else if(510 < choice <= 765)
+  {
+    strip.setPixelColor(0, 0, 0, 0); 
+    strip.setPixelColor(1, 0, 0, 0);
+    strip.setPixelColor(2, 0, 0, 0);
+    strip.setPixelColor(3, 0, 0, 0);
+    strip.setPixelColor(4, 255, 0, 0);
+    //strip.setPixelColor(5, 0, 0, 0); 
+    //strip.setPixelColor(6, 0, 0, 0);
+    //strip.setPixelColor(7, 255, 0, 0);
+    //strip.setPixelColor(8, 0, 0, 0);
+    //strip.setPixelColor(9, 0, 0, 0);
+    //strip.setPixelColor(10, 0, 0, 0); 
+    //strip.setPixelColor(11, 255, 0, 0);
+    strip.show();
+  }
+  //C scale
+  else
+  {
+    //initial neopixel set up
+    strip.setPixelColor(0, 255, 0, 0); 
+    strip.setPixelColor(1, 0, 0, 0);
+    strip.setPixelColor(2, 0, 0, 0);
+    strip.setPixelColor(3, 0, 0, 0);
+    strip.setPixelColor(4, 0, 0, 0);
+    //strip.setPixelColor(5, 0, 0, 0); 
+    //strip.setPixelColor(6, 0, 0, 0);
+    //strip.setPixelColor(7, 0, 0, 0);
+    //strip.setPixelColor(8, 0, 0, 0);
+    //strip.setPixelColor(9, 0, 0, 0); 
+    //strip.setPixelColor(10, 0, 0, 0); 
+    //strip.setPixelColor(11, 0, 0, 0);
+   
+    //Set up toggle
+    reading = digitalRead(button);
+    // if the input just went from LOW and HIGH and we've waited long enough
+    // to ignore any noise on the circuit, toggle the output pin and remember
+    // the time
+    if (reading == HIGH && previous == LOW && millis() - time > debounce) {
+      if (state == HIGH)
+        state = LOW;
+      else
+        state = HIGH;
+
+      c++;
+
+      time = millis();    
+    }
+      previous = reading;
+  }
+
+  //go through the scale
+  if(c==1)
+  {
+    strip.setPixelColor(0, 0, 255, 0); 
+    strip.setPixelColor(1, 0, 0, 0);
+    strip.setPixelColor(2, 255, 0, 0);
+    strip.setPixelColor(3, 0, 0, 0);
+    strip.setPixelColor(4, 0, 0, 0);
+    //strip.setPixelColor(5, 0, 0, 0); 
+    //strip.setPixelColor(6, 0, 0, 0);
+    //strip.setPixelColor(7, 0, 0, 0);
+    //strip.setPixelColor(8, 0, 0, 0);
+    //strip.setPixelColor(9, 0, 0, 0); 
+    //strip.setPixelColor(10, 0, 0, 0); 
+    //strip.setPixelColor(11, 0, 0, 0); 
+  } }
