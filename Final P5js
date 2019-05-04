@@ -1,0 +1,151 @@
+//Variables 
+var serial; //variable to hold an instance of the serial port library
+var portName = 'COM4'; //my Port
+var n = 0; // Data coming from 
+var state = 0;
+var reading;
+var previous = 0;
+
+//initialize sounds
+function preload()
+{
+  c = loadSound('C5.mp3');
+  cs = loadSound('Db5.mp3');
+  d = loadSound('D5.mp3');
+  ds = loadSound('Eb5.mp3');
+  e = loadSound('E5.mp3');
+  f = loadSound('F5.mp3');
+  fs = loadSound('Gb5.mp3');
+  g = loadSound('G5.mp3');
+  gs = loadSound('Ab5.mp3');
+  a = loadSound('A5.mp3');
+  as = loadSound('Bb5.mp3');
+  b = loadSound('B5.mp3');
+  c6 = loadSound('C6.mp3');
+}
+
+//build the canvas and set up serial communication 
+function setup() {
+  createCanvas(400, 400);
+  background('dodgerblue');
+
+  //a new instance of serial port library
+  serial = new p5.SerialPort(); 
+  //set up events for serial communication
+  serial.on('connected', serverConnected);
+  serial.on('open', portOpen);
+  serial.on('data', serialEvent);
+  serial.on('error', serialError);
+  serial.on('close', portClose);
+  //open our serial port
+  serial.open(portName);
+}
+
+//run the sound function 
+function draw() {
+  reading = n;
+  if (reading != previous) 
+  {
+    state = c;
+    sound();    
+  }
+  previous = reading;
+}
+
+//play the note based on data coming from arduino 
+function sound()
+{
+  if(n ==1)
+  {
+    c.play();
+  }
+  else if(n ==2)
+  {
+    cs.play();
+  }
+  else if(n ==3)
+  {
+    d.play();
+  }
+  else if(n ==4)
+  {
+    ds.play();
+  }
+  else if(n ==5)
+  {
+    e.play();
+  }
+  else if(n ==6)
+  {
+    f.play();
+  }
+  else if(n ==7)
+  {
+    fs.play();
+  }
+  else if(n ==8)
+  {
+    g.play();
+  }
+  else if(n ==9)
+  {
+    gs.play();
+  }
+  else if(n ==10)
+  {
+    a.play();
+  }
+  else if(n ==11)
+  {
+    as.play();
+  }
+  else if(n ==12)
+  {
+    b.play();
+  }
+  else if(n ==13)
+  {
+    c6.play();
+  }
+}
+
+//callback funcitons
+
+function serverConnected(){
+	console.log('connected to the server');
+}
+
+function portOpen(){
+  console.log('the serial port opened!');
+}
+
+//THIS IS WHERE WE RECEIVE DATA!!!!!!
+function serialEvent(){
+	//receive serial data 
+  var incomingString = serial.readLine();
+  //console.log(incomingString);
+ n = Number(incomingString);
+  console.log(n);
+  //split the string at a comma
+  // if(incomingString.length > 0){
+  //   var sensorArray = split(incomingString, ",");
+  //   n = Number(sensorArray[0]);
+  // }  
+}
+
+function serialError(err){
+  console.log('something went wrong with the port. ' + err);
+}
+
+function portClose(){
+  console.log('the port was closed');
+}
+
+// get the list of ports:
+function printList(portList) {
+ // portList is an array of serial port names
+ for (var i = 0; i < portList.length; i++) {
+ // Display the list the console:
+ print(i + " " + portList[i]);
+ }
+}
